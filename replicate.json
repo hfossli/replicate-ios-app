@@ -1,0 +1,25 @@
+[
+  {
+    "field": "R-PROJECT-NAME",
+    "description": "What's the name of your project?",
+    "suggestion": "folder.name"
+  },
+  {
+    "field": "R-AUTHOR-NAME",
+    "description": "What's your name?",
+    "suggestion": "git.user.name"
+  },
+  {
+    "field": "R-AUTHOR-EMAIL",
+    "description": "What's your email address?",
+    "suggestion": "git.user.email"
+  },
+  {
+    "field": "R-COMPANY-NAME",
+    "description": "What's your company name?"
+  },
+  {
+    "field": "R-COMPANY-IDENTIFIER",
+    "description": "What's your company identifier? E.g. \"no.agens\""
+  }
+]
