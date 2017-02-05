@@ -36,6 +36,7 @@
 		4C980AFE1E46228800EDC7CF /* R-PROJECT-NAMETests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "R-PROJECT-NAMETests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		4C980B021E46228800EDC7CF /* R_PROJECT_NAMETests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = R_PROJECT_NAMETests.swift; sourceTree = "<group>"; };
 		4C980B041E46228800EDC7CF /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		4C980B0D1E47CD8300EDC7CF /* Config.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Config.xcconfig; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -83,6 +84,7 @@
 				4C980AF41E46228800EDC7CF /* Assets.xcassets */,
 				4C980AF61E46228800EDC7CF /* LaunchScreen.storyboard */,
 				4C980AF91E46228800EDC7CF /* Info.plist */,
+				4C980B0D1E47CD8300EDC7CF /* Config.xcconfig */,
 			);
 			path = "R-PROJECT-NAME";
 			sourceTree = "<group>";
@@ -244,6 +246,7 @@
 /* Begin XCBuildConfiguration section */
 		4C980B051E46228800EDC7CF /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 4C980B0D1E47CD8300EDC7CF /* Config.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_ANALYZER_NONNULL = YES;
@@ -294,6 +297,7 @@
 		};
 		4C980B061E46228800EDC7CF /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 4C980B0D1E47CD8300EDC7CF /* Config.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_ANALYZER_NONNULL = YES;
@@ -406,6 +410,7 @@
 				4C980B091E46228800EDC7CF /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		4C980B0A1E46228800EDC7CF /* Build configuration list for PBXNativeTarget "R-PROJECT-NAMETests" */ = {
 			isa = XCConfigurationList;
@@ -414,6 +419,7 @@
 				4C980B0C1E46228800EDC7CF /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};

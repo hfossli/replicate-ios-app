@@ -1,0 +1,160 @@
+fastlane_version "1.90.0"
+default_platform :ios
+
+platform :ios do
+
+  desc "Update app Info.plist and Config.xcconfig"
+  lane :switch do |options|
+
+    pinning = !options.has_key?(:pinning) || options[:pinning]
+
+    update_info_plist(
+      plist_path: "R-PROJECT-NAME/Info.plist",
+      block: lambda { |plist|
+        plist["CFBundleDisplayName"] = get_env("APP_DISPLAY_NAME")
+        plist["CFBundleVersion"] = "#{get_generic_version}"
+        plist["CFBundleIdentifier"] = get_env("APP_BUNDLE_IDENTIFIER")
+      }
+    )
+
+    File.open("../R-PROJECT-NAME/AppConstants.swift", 'w+') { |file| file.write(
+<<-LONG_STRING
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////
+//   MAINTAINED BY fastlane/Fastfile. Any changes to this *file* will be removed and overwritten.   //
+//////////////////////////////////////////////////////////////////////////////////////////////////////
+
+import TrustKit
+
+class AppConstants {
+
+  /* Before debugging make sure you did run `fastlane switch -e dev` in order to update this file. */
+
+  static let server = "#{get_env("APP_SERVER")}"
+  static let serverUrl = "https://#{get_env("APP_SERVER")}/"
+  static let hockeyAppIdentifier = get_env("APP_HOCKEYAPP_ID")
+}
+
+LONG_STRING
+  )}
+
+    File.open("../R-PROJECT-NAME/Config.xcconfig", 'w+') { |file| file.write(
+<<-LONG_STRING
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////
+//   MAINTAINED BY fastlane/Fastfile. Any changes to this *file* will be removed and overwritten.   //
+//////////////////////////////////////////////////////////////////////////////////////////////////////
+
+APP_CODE_SIGNING_IDENTITY_DEVELOPMENT = #{get_env("APP_CODE_SIGNING_IDENTITY_DEVELOPMENT")}
+APP_PROVISIONING_NAME_DEVELOPMENT = #{get_env("APP_PROVISIONING_NAME_DEVELOPMENT")}
+APP_TEAM_DEVELOPMENT = #{get_env("APP_TEAM_DEVELOPMENT")}
+
+APP_CODE_SIGNING_IDENTITY_DISTRIBUTION = #{get_env("APP_CODE_SIGNING_IDENTITY_DISTRIBUTION")}
+APP_PROVISIONING_NAME_DISTRIBUTION = #{get_env("APP_PROVISIONING_NAME_DISTRIBUTION")}
+APP_TEAM_DISTRIBUTION = #{get_env("APP_TEAM_DISTRIBUTION")}
+
+APP_APP_ICON = #{get_env("APP_APP_ICON")}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////
+//   MAINTAINED BY fastlane/Fastfile. Any changes to this *file* will be removed and overwritten.   //
+//////////////////////////////////////////////////////////////////////////////////////////////////////
+
+LONG_STRING
+    )}
+
+    confirm(options)
+
+  end
+
+  desc "Switch, build and upload to Hockeyapp."
+  lane :export do |options|
+    build(options)
+    upload(options)
+  end
+
+  desc "Run unit tests"
+  lane :test do
+    commit = last_git_commit
+    scan(
+      scheme: "R-PROJECT-NAME",
+      device: "iPhone 6",
+      workspace: "R-PROJECT-NAME.xcworkspace",
+      slack_message: "Tests broken - check commit:\n[#{commit[:abbreviated_commit_hash]}]: #{commit[:message]}Author: #{commit[:author]}\n",
+      skip_slack: true
+    )
+  end
+
+  def feature_build?
+    ! (git_branch.start_with? "develop", "master")
+  end
+
+  def get_git_history
+      history = feature_build? ? `git log origin/develop.. --pretty=format:"%an - %s"` : `git log -n5 --pretty=format:"%cn - %s"`
+      history = history.lines.reject { |line|
+        line.strip == ""
+      }.map { |line|
+        line.strip.sub /\s\w+/, ''
+      }.join "\n"
+
+      {
+        :lines => history,
+        :title => feature_build? ? "History since develop" : "Last #{history.lines.count} commits"
+      }
+  end
+
+  def get_env(name)
+      unless ENV[name]
+        message = "\n\nMissing environment variables '#{name}'.\nRun fastlane action/lane and specify environment (e.g. `fastlane #{ENV["FASTLANE_LANE_NAME"]} -e dev`). \nAlso make sure that the .env.* files contains the appropriate key.\n"
+        message += "\nYou may use one of these lines instead:\n"
+        message += " --> fastlane #{ENV["FASTLANE_LANE_NAME"]} -e dev\n"
+        message += " --> fastlane #{ENV["FASTLANE_LANE_NAME"]} -e prod\n"
+        message += " --> fastlane #{ENV["FASTLANE_LANE_NAME"]} -e staging\n"
+        UI.user_error! message
+      end
+      ENV[name]
+  end
+
+  def get_generic_version
+    branch_name = `git branch`.lines.grep(/\*/).first.gsub(/^\* /, '').gsub(/^.*\(detached from (.+)\).*$/, 'detached-\1').strip
+    commit_count = `git rev-list --all --count`.strip
+    return "#{branch_name}-#{commit_count}"
+  end
+
+  def remove_local_duplicate_profiles
+    entries = {}
+    path = File.expand_path '~/Library/MobileDevice/Provisioning Profiles'
+    puts "Searching through locally installed mobileprovision files..."
+    Dir.glob("#{path}/*.mobileprovision") do |item|
+      info = Helper.backticks "/usr/libexec/PlistBuddy -c 'Print :CreationDate' -c 'Print :Name' -c 'Print :TeamName' /dev/stdin <<< $(security cms -D -i '#{item}' 2> /dev/null)", print: false
+      values = info.split "\n"
+      entry = {
+        :creation_date => values[0],
+        :name => values[1],
+        :team => values[2],
+        :path => item
+      }
+      key = "#{entry[:team]} > #{entry[:name]}"
+      same_key_entries = entries[key]
+      unless same_key_entries
+        same_key_entries = []
+        entries[key] = same_key_entries
+      end
+      same_key_entries.push entry
+    end
+    puts "...done!"
+
+    dupes = entries.find_all { |k,profiles| profiles.count > 1 }
+    dupes.each { |k,profiles|
+      sorted = profiles.sort_by { |a|
+        DateTime.strptime(a[:creation_date], '%a %b %d %H:%M:%S CET %Y')
+      }.reverse
+      keeping = sorted[0]
+      puts "Keeping profile:     '#{keeping[:name]}' (#{File.basename keeping[:path]}) #{keeping[:creation_date]}"
+      sorted.drop(1).each { |entry|
+        puts " > Deleting profile: '#{entry[:name]}' (#{File.basename entry[:path]}) #{entry[:creation_date]}"
+        Helper.backticks "rm '#{entry[:path]}'"
+      }
+    }
+  end
+
+end
