@@ -24,8 +24,6 @@ platform :ios do
 //   MAINTAINED BY fastlane/Fastfile. Any changes to this *file* will be removed and overwritten.   //
 //////////////////////////////////////////////////////////////////////////////////////////////////////
 
-import TrustKit
-
 class AppConstants {
 
   /* Before debugging make sure you did run `fastlane switch -e dev` in order to update this file. */
@@ -34,6 +32,10 @@ class AppConstants {
   static let serverUrl = "https://#{get_env("APP_SERVER")}/"
   static let hockeyAppIdentifier = get_env("APP_HOCKEYAPP_ID")
 }
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////
+//   MAINTAINED BY fastlane/Fastfile. Any changes to this *file* will be removed and overwritten.   //
+//////////////////////////////////////////////////////////////////////////////////////////////////////
 
 LONG_STRING
   )}
