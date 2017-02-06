@@ -64,8 +64,6 @@ APP_APP_ICON = #{get_env("APP_APP_ICON")}
 LONG_STRING
     )}
 
-    confirm(options)
-
   end
 
   desc "Switch, build and upload to Hockeyapp."

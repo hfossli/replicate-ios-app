@@ -2,8 +2,14 @@
   "replace": [
     {
       "find": "R-PROJECT-NAME",
-      "description": "What's the name of your project?",
+      "description": "What's the name of your project? Something suitable for ___.xcodeproj",
+      "accept": "[a-zA-Z0-9_-]",
       "suggestion": "folder.name"
+    },
+    {
+      "find": "R-PROJECT-DISPLAY-NAME",
+      "description": "What's the display name of your project (as seen on homescreen)?",
+      "suggestion": "R-PROJECT-NAME"
     },
     {
       "find": "R-AUTHOR-NAME",
@@ -20,8 +26,8 @@
       "description": "What's your company name?"
     },
     {
-      "find": "R-COMPANY-IDENTIFIER",
-      "description": "What's your company identifier? E.g. \"no.agens\""
+      "find": "R-BUNDLE-IDENTIFIER",
+      "description": "What's your bundle identifier? E.g. \"no.agens.gearbox\""
     }
   ]
 }
